@@ -3,359 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bez Struje — Obaveštenja o isključenju struje u Beogradu</title>
+    <title>Bez Struje — Obaveštenja o isključenju struje u Srbiji</title>
+    <meta name="description" content="Besplatna obaveštenja o planiranim isključenjima struje. Unesite adresu i dobijte email 2 dana i 1 dan pre nego što vam nestane struja.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         :root {
-            --bg: #0c0c1d;
-            --surface: #151530;
-            --surface-2: #1c1c3a;
-            --border: #2a2a50;
-            --amber: #f59e0b;
-            --amber-soft: #fef3c7;
-            --amber-glow: rgba(245, 158, 11, 0.15);
-            --text: #e2e2f0;
-            --text-dim: #8888a8;
-            --white: #ffffff;
-            --success: #10b981;
-            --error: #ef4444;
-            --radius: 10px;
+            --bg: #0c0c1d; --surface: #151530; --surface-2: #1c1c3a;
+            --border: #2a2a50; --amber: #f59e0b; --amber-soft: #fef3c7;
+            --amber-glow: rgba(245, 158, 11, 0.15); --text: #e2e2f0;
+            --text-dim: #8888a8; --white: #ffffff; --success: #10b981;
+            --error: #ef4444; --radius: 10px;
         }
-
         body {
             font-family: 'DM Sans', system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; -webkit-font-smoothing: antialiased;
         }
-
-        /* --- GRID BACKGROUND --- */
         body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background:
-                linear-gradient(var(--border) 1px, transparent 1px),
-                linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 60px 60px;
-            opacity: 0.15;
-            pointer-events: none;
-            z-index: 0;
+            content: ''; position: fixed; inset: 0;
+            background: linear-gradient(var(--border) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 60px 60px; opacity: 0.15; pointer-events: none; z-index: 0;
         }
-
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 580px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* --- HEADER --- */
-        .header {
-            text-align: center;
-            padding: 50px 0 30px;
-        }
-
-        .logo {
-            font-size: 44px;
-            margin-bottom: 12px;
-            display: inline-block;
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-
+        .container { position: relative; z-index: 1; max-width: 580px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; padding: 50px 0 30px; }
+        .logo { font-size: 44px; margin-bottom: 12px; display: inline-block; animation: pulse-glow 2s ease-in-out infinite; }
         @keyframes pulse-glow {
             0%, 100% { filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.4)); }
             50% { filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.8)); }
         }
-
-        .header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--white);
-            letter-spacing: -0.5px;
+        .header h1 { font-size: 28px; font-weight: 700; color: var(--white); letter-spacing: -0.5px; }
+        .header h1 span { color: var(--amber); }
+        .header p { color: var(--text-dim); font-size: 16px; margin-top: 10px; line-height: 1.5; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 16px; }
+        .card-title { font-size: 15px; font-weight: 600; color: var(--amber); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 20px; }
+        .field { margin-bottom: 16px; }
+        .field label { display: block; font-size: 13px; font-weight: 500; color: var(--text-dim); margin-bottom: 6px; }
+        .field input, .field select {
+            width: 100%; background: var(--surface-2); border: 1px solid var(--border);
+            border-radius: 8px; padding: 12px 14px; font-size: 15px; font-family: inherit;
+            color: var(--white); outline: none; transition: border-color 0.2s;
+            -webkit-appearance: none; appearance: none;
         }
-
-        .header h1 span {
-            color: var(--amber);
+        .field select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238888a8' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
         }
-
-        .header p {
-            color: var(--text-dim);
-            font-size: 16px;
-            margin-top: 10px;
-            line-height: 1.5;
-        }
-
-        /* --- CARDS --- */
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 28px;
-            margin-bottom: 16px;
-        }
-
-        .card-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--amber);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 20px;
-        }
-
-        /* --- FORM --- */
-        .field {
-            margin-bottom: 16px;
-        }
-
-        .field label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-dim);
-            margin-bottom: 6px;
-        }
-
-        .field input {
-            width: 100%;
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px 14px;
-            font-size: 15px;
-            font-family: inherit;
-            color: var(--white);
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .field input:focus {
-            border-color: var(--amber);
-            box-shadow: 0 0 0 3px var(--amber-glow);
-        }
-
-        .field input::placeholder {
-            color: #555570;
-        }
-
-        .field-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 12px;
-        }
-
-        .field .hint {
-            font-size: 12px;
-            color: var(--text-dim);
-            margin-top: 4px;
-        }
-
+        .field input:focus, .field select:focus { border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-glow); }
+        .field input::placeholder { color: #555570; }
+        .field .hint { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+        .field-row { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
         .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all 0.2s;
+            width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 15px;
+            font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.2s;
         }
-
-        .btn-primary {
-            background: var(--amber);
-            color: #000;
-        }
-
-        .btn-primary:hover {
-            background: #eab308;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 20px var(--amber-glow);
-        }
-
-        .btn-secondary {
-            background: var(--surface-2);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--amber);
-            color: var(--white);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* --- MESSAGES --- */
-        .msg {
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            margin-top: 16px;
-            display: none;
-            line-height: 1.4;
-        }
-
-        .msg.success {
-            background: rgba(16, 185, 129, 0.12);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: var(--success);
-            display: block;
-        }
-
-        .msg.error {
-            background: rgba(239, 68, 68, 0.12);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: var(--error);
-            display: block;
-        }
-
-        /* --- RESULTS --- */
+        .btn-primary { background: var(--amber); color: #000; }
+        .btn-primary:hover { background: #eab308; transform: translateY(-1px); box-shadow: 0 4px 20px var(--amber-glow); }
+        .btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { border-color: var(--amber); color: var(--white); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .msg { padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-top: 16px; display: none; line-height: 1.4; }
+        .msg.success { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--success); display: block; }
+        .msg.error { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--error); display: block; }
         .outage-result {
-            background: var(--surface-2);
-            border-left: 3px solid var(--amber);
-            padding: 14px 16px;
-            border-radius: 0 8px 8px 0;
-            margin-top: 10px;
-            font-size: 14px;
-            line-height: 1.6;
+            background: var(--surface-2); border-left: 3px solid var(--amber);
+            padding: 14px 16px; border-radius: 0 8px 8px 0; margin-top: 10px; font-size: 14px; line-height: 1.6;
         }
-
-        .outage-result .date {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--amber);
-            font-weight: 500;
-        }
-
-        .outage-result .streets {
-            color: var(--text-dim);
-            font-size: 13px;
-            margin-top: 4px;
-            word-break: break-word;
-        }
-
-        .no-outages {
-            text-align: center;
-            padding: 20px;
-            color: var(--success);
-            font-size: 15px;
-        }
-
-        /* --- MY SUBS --- */
-        .sub-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
+        .outage-result .date { font-family: 'JetBrains Mono', monospace; color: var(--amber); font-weight: 500; }
+        .outage-result .streets { color: var(--text-dim); font-size: 13px; margin-top: 4px; word-break: break-word; }
+        .no-outages { text-align: center; padding: 20px; color: var(--success); font-size: 15px; }
+        .sub-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
         .sub-item:last-child { border-bottom: none; }
-
-        .sub-address {
-            font-size: 14px;
-            color: var(--white);
-        }
-
-        .sub-remove {
-            font-size: 12px;
-            color: var(--error);
-            cursor: pointer;
-            background: none;
-            border: none;
-            font-family: inherit;
-            padding: 4px 8px;
-        }
-
+        .sub-address { font-size: 14px; color: var(--white); }
+        .sub-region-tag { font-size: 11px; color: var(--amber); background: var(--amber-glow); padding: 2px 8px; border-radius: 4px; margin-left: 8px; }
+        .sub-remove { font-size: 12px; color: var(--error); cursor: pointer; background: none; border: none; font-family: inherit; padding: 4px 8px; }
         .sub-remove:hover { text-decoration: underline; }
-
-        /* --- TABS --- */
-        .tabs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 24px;
-        }
-
+        .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px; }
         .tab {
-            padding: 10px;
-            text-align: center;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-dim);
-            background: transparent;
-            font-family: inherit;
-            transition: all 0.2s;
+            padding: 10px; text-align: center; border: 1px solid var(--border); border-radius: 8px;
+            cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-dim);
+            background: transparent; font-family: inherit; transition: all 0.2s;
         }
-
-        .tab.active {
-            background: var(--amber-glow);
-            border-color: var(--amber);
-            color: var(--amber);
-        }
-
+        .tab.active { background: var(--amber-glow); border-color: var(--amber); color: var(--amber); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        .footer { text-align: center; padding: 40px 0; color: var(--text-dim); font-size: 13px; line-height: 1.6; }
+        .footer a { color: var(--amber); text-decoration: none; }
+        .steps { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 16px; }
+        .step { text-align: center; padding: 16px 8px; }
+        .step-icon { font-size: 28px; margin-bottom: 8px; }
+        .step-text { font-size: 13px; color: var(--text-dim); line-height: 1.4; }
+        .step-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--amber); margin-bottom: 4px; }
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.2); border-top-color: #000; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 6px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* --- FOOTER --- */
-        .footer {
-            text-align: center;
-            padding: 40px 0;
-            color: var(--text-dim);
-            font-size: 13px;
-            line-height: 1.6;
+        /* Success overlay */
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(12,12,29,0.85); z-index: 100; align-items: center; justify-content: center; }
+        .overlay.show { display: flex; }
+        .overlay-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+            padding: 40px; text-align: center; max-width: 420px; margin: 20px;
+            animation: pop-in 0.3s ease-out;
         }
+        @keyframes pop-in { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .overlay-icon { font-size: 56px; margin-bottom: 16px; }
+        .overlay-title { font-size: 22px; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+        .overlay-text { font-size: 15px; color: var(--text-dim); line-height: 1.5; margin-bottom: 24px; }
+        .overlay-text strong { color: var(--amber); }
+        .overlay .btn { max-width: 200px; margin: 0 auto; }
 
-        .footer a {
-            color: var(--amber);
-            text-decoration: none;
-        }
-
-        /* --- HOW IT WORKS --- */
-        .steps {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-            margin-top: 16px;
-        }
-
-        .step {
-            text-align: center;
-            padding: 16px 8px;
-        }
-
-        .step-icon {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-
-        .step-text {
-            font-size: 13px;
-            color: var(--text-dim);
-            line-height: 1.4;
-        }
-
-        .step-num {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: var(--amber);
-            margin-bottom: 4px;
-        }
-
-        /* --- RESPONSIVE --- */
         @media (max-width: 500px) {
             .container { padding: 16px; }
             .header h1 { font-size: 24px; }
@@ -363,61 +122,45 @@
             .steps { grid-template-columns: 1fr; gap: 4px; }
             .step { padding: 10px; display: flex; align-items: center; gap: 12px; text-align: left; }
         }
-
-        .spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(0,0,0,0.2);
-            border-top-color: #000;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-            vertical-align: middle;
-            margin-right: 6px;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+    <!-- SUCCESS OVERLAY -->
+    <div class="overlay" id="success-overlay">
+        <div class="overlay-card">
+            <div class="overlay-icon">✅</div>
+            <div class="overlay-title">Prijava uspešna!</div>
+            <div class="overlay-text" id="overlay-text"></div>
+            <button class="btn btn-primary" onclick="closeOverlay()">U redu</button>
+        </div>
+    </div>
+
     <div class="container">
-        <!-- HEADER -->
         <div class="header">
             <div class="logo">⚡</div>
             <h1>Bez <span>Struje</span></h1>
-            <p>Dobijte email obaveštenje pre planiranog isključenja struje na vašoj adresi u Beogradu.</p>
+            <p>Dobijte email obaveštenje pre planiranog isključenja struje na vašoj adresi.</p>
         </div>
 
-        <!-- HOW IT WORKS -->
         <div class="steps">
-            <div class="step">
-                <div>
-                    <div class="step-num">01</div>
-                    <div class="step-icon">📍</div>
-                    <div class="step-text">Upišite svoju ulicu i broj</div>
-                </div>
-            </div>
-            <div class="step">
-                <div>
-                    <div class="step-num">02</div>
-                    <div class="step-icon">🔍</div>
-                    <div class="step-text">Pratimo sajt EDS-a svakih sat vremena</div>
-                </div>
-            </div>
-            <div class="step">
-                <div>
-                    <div class="step-num">03</div>
-                    <div class="step-icon">📧</div>
-                    <div class="step-text">Stižu vam emailovi 2 dana i 1 dan ranije</div>
-                </div>
-            </div>
+            <div class="step"><div>
+                <div class="step-num">01</div><div class="step-icon">📍</div>
+                <div class="step-text">Upišite svoju ulicu i broj</div>
+            </div></div>
+            <div class="step"><div>
+                <div class="step-num">02</div><div class="step-icon">🔍</div>
+                <div class="step-text">Pratimo sajt EDS-a svakih sat vremena</div>
+            </div></div>
+            <div class="step"><div>
+                <div class="step-num">03</div><div class="step-icon">📧</div>
+                <div class="step-text">Stižu vam emailovi 2 dana i 1 dan ranije</div>
+            </div></div>
         </div>
 
-        <!-- MAIN CARD -->
         <div class="card" style="margin-top: 24px;">
             <div class="tabs">
-                <button class="tab active" onclick="showTab('subscribe')">Prijavite se</button>
-                <button class="tab" onclick="showTab('check')">Brza provera</button>
+                <button class="tab active" onclick="showTab('subscribe', this)">Prijavite se</button>
+                <button class="tab" onclick="showTab('check', this)">Brza provera</button>
             </div>
 
             <!-- SUBSCRIBE TAB -->
@@ -426,6 +169,10 @@
                     <div class="field">
                         <label for="email">Email adresa</label>
                         <input type="email" id="email" placeholder="vas@email.com" required>
+                    </div>
+                    <div class="field">
+                        <label for="region">Grad / Region</label>
+                        <select id="region"></select>
                     </div>
                     <div class="field-row">
                         <div class="field">
@@ -448,6 +195,10 @@
             <!-- CHECK TAB -->
             <div id="tab-check" class="tab-content">
                 <form id="check-form" onsubmit="handleCheck(event)">
+                    <div class="field">
+                        <label for="check-region">Grad / Region</label>
+                        <select id="check-region"></select>
+                    </div>
                     <div class="field-row">
                         <div class="field">
                             <label for="check-street">Ulica</label>
@@ -469,12 +220,8 @@
         <div class="card" id="my-subs-card" style="display: none;">
             <div class="card-title">Moje pretplate</div>
             <div id="my-subs-list"></div>
-            <div class="field" style="margin-top: 16px; margin-bottom: 0;">
-                <div class="hint">Unesite email iznad i kliknite "Prijavi me" da dodate novu adresu. Ovde možete ukloniti postojeće pretplate.</div>
-            </div>
         </div>
 
-        <!-- FOOTER -->
         <div class="footer">
             Podaci sa <a href="https://elektrodistribucija.rs" target="_blank">elektrodistribucija.rs</a><br>
             Servis nije u vezi sa EPS/EDS. Koristite na sopstvenu odgovornost.
@@ -483,13 +230,46 @@
 
     <script>
         const API = window.location.origin;
+        const REGION_LABELS = {};
+
+        // --- Load regions ---
+        async function loadRegions() {
+            try {
+                const resp = await fetch(API + '/api/regions');
+                const regions = await resp.json();
+                Object.assign(REGION_LABELS, regions);
+                ['region', 'check-region'].forEach(id => {
+                    const sel = document.getElementById(id);
+                    sel.innerHTML = '';
+                    Object.entries(regions).forEach(([key, label]) => {
+                        const opt = document.createElement('option');
+                        opt.value = key;
+                        opt.textContent = label;
+                        sel.appendChild(opt);
+                    });
+                });
+            } catch(e) { console.error('Failed to load regions', e); }
+        }
+        loadRegions();
 
         // --- Tabs ---
-        function showTab(tab) {
+        function showTab(tab, el) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
-            event.target.classList.add('active');
+            el.classList.add('active');
+        }
+
+        // --- Success overlay ---
+        function showOverlay(addr, email) {
+            document.getElementById('overlay-text').innerHTML =
+                `Poslali smo vam potvrdu na <strong>${email}</strong>.<br><br>` +
+                `Kada EDS objavi isključenje za <strong>${addr}</strong>, ` +
+                `javićemo vam emailom 2 dana i 1 dan ranije.`;
+            document.getElementById('success-overlay').classList.add('show');
+        }
+        function closeOverlay() {
+            document.getElementById('success-overlay').classList.remove('show');
         }
 
         // --- Subscribe ---
@@ -498,27 +278,28 @@
             const btn = document.getElementById('btn-subscribe');
             const msg = document.getElementById('subscribe-msg');
             const email = document.getElementById('email').value.trim();
+            const region = document.getElementById('region').value;
             const street = document.getElementById('street').value.trim();
             const house_number = document.getElementById('house_number').value.trim();
 
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner"></span>Prijavljujem...';
-            msg.className = 'msg';
-            msg.style.display = 'none';
+            msg.className = 'msg'; msg.style.display = 'none';
 
             try {
                 const resp = await fetch(API + '/api/subscribe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, street, house_number: house_number || null }),
+                    body: JSON.stringify({ email, street, house_number: house_number || null, region }),
                 });
                 const data = await resp.json();
 
                 if (resp.ok) {
                     const addr = house_number ? `${street} ${house_number}` : street;
-                    msg.className = 'msg success';
-                    msg.textContent = `✅ Prijavljeni ste! Dobićete email na ${email} kada bude planirano isključenje za ${addr}.`;
+                    showOverlay(addr, email);
                     loadSubscriptions(email);
+                    document.getElementById('street').value = '';
+                    document.getElementById('house_number').value = '';
                 } else {
                     msg.className = 'msg error';
                     msg.textContent = data.detail || 'Greška pri prijavi.';
@@ -527,7 +308,6 @@
                 msg.className = 'msg error';
                 msg.textContent = 'Greška u komunikaciji sa serverom.';
             }
-
             btn.disabled = false;
             btn.textContent = 'Prijavi me ⚡';
         }
@@ -538,19 +318,18 @@
             const btn = document.getElementById('btn-check');
             const results = document.getElementById('check-results');
             const msg = document.getElementById('check-msg');
+            const region = document.getElementById('check-region').value;
             const street = document.getElementById('check-street').value.trim();
             const number = document.getElementById('check-number').value.trim();
 
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner"></span>Proveravam...';
             results.innerHTML = '';
-            msg.className = 'msg';
-            msg.style.display = 'none';
+            msg.className = 'msg'; msg.style.display = 'none';
 
             try {
-                let url = `${API}/api/check?street=${encodeURIComponent(street)}`;
+                let url = `${API}/api/check?street=${encodeURIComponent(street)}&region=${region}`;
                 if (number) url += `&house_number=${encodeURIComponent(number)}`;
-
                 const resp = await fetch(url);
                 const data = await resp.json();
 
@@ -562,63 +341,51 @@
                         const dt = new Date(o.outage_date + 'T00:00:00');
                         const dayName = days[dt.getDay()];
                         const formatted = `${dayName}, ${dt.getDate()}.${dt.getMonth()+1}.${dt.getFullYear()}`;
-                        return `
-                            <div class="outage-result">
-                                <div><span class="date">${formatted}</span> — ${o.time_range}</div>
-                                <div style="color: var(--text); margin-top: 2px;">Opština: ${o.municipality}</div>
-                                <div class="streets">${o.streets_raw.substring(0, 200)}${o.streets_raw.length > 200 ? '...' : ''}</div>
-                            </div>
-                        `;
+                        return `<div class="outage-result">
+                            <div><span class="date">${formatted}</span> — ${o.time_range}</div>
+                            <div style="color: var(--text); margin-top: 2px;">Opština: ${o.municipality}</div>
+                            <div class="streets">${o.streets_raw.substring(0, 200)}${o.streets_raw.length > 200 ? '...' : ''}</div>
+                        </div>`;
                     }).join('');
                 }
             } catch (err) {
                 msg.className = 'msg error';
                 msg.textContent = 'Greška u komunikaciji sa serverom.';
             }
-
             btn.disabled = false;
             btn.textContent = 'Proveri adresu';
         }
 
-        // --- Load user subscriptions ---
+        // --- Subscriptions ---
         async function loadSubscriptions(email) {
             if (!email) return;
             try {
                 const resp = await fetch(`${API}/api/subscriptions?email=${encodeURIComponent(email)}`);
                 const subs = await resp.json();
-
                 const card = document.getElementById('my-subs-card');
                 const list = document.getElementById('my-subs-list');
-
-                if (subs.length === 0) {
-                    card.style.display = 'none';
-                    return;
-                }
-
+                if (subs.length === 0) { card.style.display = 'none'; return; }
                 card.style.display = 'block';
                 list.innerHTML = subs.map(s => `
                     <div class="sub-item">
-                        <span class="sub-address">📍 ${s.street}${s.house_number ? ' ' + s.house_number : ''}</span>
+                        <span>
+                            <span class="sub-address">📍 ${s.street}${s.house_number ? ' ' + s.house_number : ''}</span>
+                            <span class="sub-region-tag">${REGION_LABELS[s.region] || s.region}</span>
+                        </span>
                         <button class="sub-remove" onclick="removeSub(${s.id}, '${email}')">Ukloni</button>
                     </div>
                 `).join('');
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) { console.error(err); }
         }
 
-        // --- Remove subscription ---
         async function removeSub(subId, email) {
             if (!confirm('Ukloniti ovu adresu?')) return;
             try {
                 await fetch(`${API}/api/subscriptions/${subId}?email=${encodeURIComponent(email)}`, { method: 'DELETE' });
                 loadSubscriptions(email);
-            } catch (err) {
-                alert('Greška.');
-            }
+            } catch (err) { alert('Greška.'); }
         }
 
-        // --- Auto-load subs when email is filled ---
         document.getElementById('email').addEventListener('blur', function() {
             if (this.value.includes('@')) loadSubscriptions(this.value.trim());
         });
