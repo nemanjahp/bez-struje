@@ -41,45 +41,39 @@ log = logging.getLogger("bez-struje")
 # Dan_0 = today/current, Dan_1 = tomorrow/next day.
 # ---------------------------------------------------------------------------
 
+MAX_DAYS_AHEAD = int(os.getenv("MAX_DAYS_AHEAD", "7"))  # Dan_0 through Dan_6
+
+def _build_urls(prefix: str, slug: str) -> list[str]:
+    """Generate URLs for Dan_0 through Dan_N."""
+    return [
+        f"https://elektrodistribucija.rs/{prefix}/{slug}Dan_{i}_Iskljucenja.htm"
+        for i in range(MAX_DAYS_AHEAD)
+    ]
+
 REGIONS = {
     "beograd": {
         "label": "Beograd",
-        "urls": [
-            "https://elektrodistribucija.rs/planirana-iskljucenja-beograd/Dan_0_Iskljucenja.htm",
-            "https://elektrodistribucija.rs/planirana-iskljucenja-beograd/Dan_1_Iskljucenja.htm",
-        ],
+        "urls": _build_urls("planirana-iskljucenja-beograd", ""),
         "has_branch_col": False,
     },
     "novi_sad": {
         "label": "Novi Sad / Vojvodina",
-        "urls": [
-            "https://elektrodistribucija.rs/planirana-iskljucenja-srbija/NoviSad_Dan_0_Iskljucenja.htm",
-            "https://elektrodistribucija.rs/planirana-iskljucenja-srbija/NoviSad_Dan_1_Iskljucenja.htm",
-        ],
+        "urls": _build_urls("planirana-iskljucenja-srbija", "NoviSad_"),
         "has_branch_col": True,
     },
     "nis": {
         "label": "Niš",
-        "urls": [
-            "https://elektrodistribucija.rs/planirana-iskljucenja-srbija/Nis_Dan_0_Iskljucenja.htm",
-            "https://elektrodistribucija.rs/planirana-iskljucenja-srbija/Nis_Dan_1_Iskljucenja.htm",
-        ],
+        "urls": _build_urls("planirana-iskljucenja-srbija", "Nis_"),
         "has_branch_col": True,
     },
     "kragujevac": {
         "label": "Kragujevac",
-        "urls": [
-            "https://elektrodistribucija.rs/planirana-iskljucenja-srbija/Kragujevac_Dan_0_Iskljucenja.htm",
-            "https://elektrodistribucija.rs/planirana-iskljucenja-srbija/Kragujevac_Dan_1_Iskljucenja.htm",
-        ],
+        "urls": _build_urls("planirana-iskljucenja-srbija", "Kragujevac_"),
         "has_branch_col": True,
     },
     "kraljevo": {
         "label": "Kraljevo",
-        "urls": [
-            "https://elektrodistribucija.rs/planirana-iskljucenja-srbija/Kraljevo_Dan_0_Iskljucenja.htm",
-            "https://elektrodistribucija.rs/planirana-iskljucenja-srbija/Kraljevo_Dan_1_Iskljucenja.htm",
-        ],
+        "urls": _build_urls("planirana-iskljucenja-srbija", "Kraljevo_"),
         "has_branch_col": True,
     },
 }
