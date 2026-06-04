@@ -138,6 +138,8 @@ def fetch_page(url: str) -> Optional[str]:
             "Accept-Language": "sr-RS,sr;q=0.9,en;q=0.5",
         })
         resp.raise_for_status()
+        # EDS pages sometimes lack charset header — force proper detection
+        resp.encoding = resp.apparent_encoding or "utf-8"
         return resp.text
     except requests.RequestException as e:
         log.warning(f"Failed to fetch {url}: {e}")
@@ -751,10 +753,42 @@ def trigger_scrape():
     new_count = scrape_all_regions()
     return {"status": "done", "new_records": new_count}
 
+@app.post("/admin/rescrape")
+def trigger_rescrape():
+    """Delete all outages and scrape fresh (use after encoding fix)."""
+    with get_db() as db:
+        db.execute("DELETE FROM outages")
+        db.execute("DELETE FROM notifications")
+    new_count = scrape_all_regions()
+    return {"status": "done", "new_records": new_count}
+
 @app.post("/admin/notify")
 def trigger_notify():
     check_and_notify()
     return {"status": "done"}
+
+@app.get("/admin/debug")
+def debug_data():
+    """Show raw outage data and encoding info for debugging."""
+    with get_db() as db:
+        outages = db.execute("SELECT * FROM outages ORDER BY id LIMIT 20").fetchall()
+    result = []
+    for o in outages:
+        raw = o["streets_raw"]
+        norm = normalize(raw)
+        parsed = parse_streets_from_raw(raw)
+        result.append({
+            "id": o["id"],
+            "municipality_raw": o["municipality"],
+            "municipality_normalized": normalize(o["municipality"]),
+            "streets_raw": raw,
+            "streets_normalized": norm,
+            "parsed_streets": {k: v for k, v in parsed.items()},
+            "outage_date": o["outage_date"],
+            "test_match_gospodar_jovanova": street_matches("Gospodar Jovanova", raw),
+            "test_match_visnjiceva": street_matches("Visnjiceva", raw),
+        })
+    return result
 
 @app.get("/health")
 def health():
