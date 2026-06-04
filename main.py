@@ -43,7 +43,7 @@ if RESEND_API_KEY:
     resend.api_key = RESEND_API_KEY
 
 # ---------------------------------------------------------------------------
-# Data source URLs — Belgrade only for MVP, more regions later
+# Data source URLs — all regions
 # ---------------------------------------------------------------------------
 
 MAX_DAYS_AHEAD = int(os.getenv("MAX_DAYS_AHEAD", "7"))
@@ -59,6 +59,26 @@ REGIONS = {
         "label": "Beograd",
         "urls": _build_urls("planirana-iskljucenja-beograd", ""),
         "has_branch_col": False,
+    },
+    "novi_sad": {
+        "label": "Novi Sad / Vojvodina",
+        "urls": _build_urls("planirana-iskljucenja-srbija", "NoviSad_"),
+        "has_branch_col": True,
+    },
+    "nis": {
+        "label": "Niš",
+        "urls": _build_urls("planirana-iskljucenja-srbija", "Nis_"),
+        "has_branch_col": True,
+    },
+    "kragujevac": {
+        "label": "Kragujevac",
+        "urls": _build_urls("planirana-iskljucenja-srbija", "Kragujevac_"),
+        "has_branch_col": True,
+    },
+    "kraljevo": {
+        "label": "Kraljevo",
+        "urls": _build_urls("planirana-iskljucenja-srbija", "Kraljevo_"),
+        "has_branch_col": True,
     },
 }
 
@@ -582,12 +602,14 @@ class SubscriptionCreate(BaseModel):
     street: str
     house_number: Optional[str] = None
     municipality: Optional[str] = None
+    region: str = "beograd"
 
 class SubscriptionOut(BaseModel):
     id: int
     street: str
     house_number: Optional[str]
     municipality: Optional[str]
+    region: str
     active: bool
 
 class OutageOut(BaseModel):
@@ -635,27 +657,67 @@ def subscribe(data: SubscriptionCreate):
     if not data.street or len(data.street.strip()) < 3:
         raise HTTPException(400, "Unesite ime ulice (minimum 3 karaktera).")
 
+    if data.region not in REGIONS:
+        raise HTTPException(400, f"Nepoznat region. Dostupni: {list(REGIONS.keys())}")
+
     with get_db() as db:
         db.execute("INSERT OR IGNORE INTO users (email) VALUES (?)", (data.email,))
         user = db.execute("SELECT id FROM users WHERE email=?", (data.email,)).fetchone()
 
         # Check duplicate
         existing = db.execute(
-            "SELECT id FROM subscriptions WHERE user_id=? AND street=? AND COALESCE(house_number,'')=?",
-            (user["id"], data.street.strip(), (data.house_number or "").strip()),
+            "SELECT id FROM subscriptions WHERE user_id=? AND street=? AND COALESCE(house_number,'')=? AND region=?",
+            (user["id"], data.street.strip(), (data.house_number or "").strip(), data.region),
         ).fetchone()
         if existing:
             raise HTTPException(400, "Već ste prijavljeni za ovu adresu.")
 
         db.execute(
-            "INSERT INTO subscriptions (user_id, street, house_number, municipality, region) VALUES (?, ?, ?, ?, 'beograd')",
-            (user["id"], data.street.strip(), (data.house_number or "").strip() or None, data.municipality),
+            "INSERT INTO subscriptions (user_id, street, house_number, municipality, region) VALUES (?, ?, ?, ?, ?)",
+            (user["id"], data.street.strip(), (data.house_number or "").strip() or None, data.municipality, data.region),
         )
         sub = db.execute("SELECT * FROM subscriptions WHERE user_id=? ORDER BY id DESC LIMIT 1", (user["id"],)).fetchone()
 
+    # Send welcome email
+    addr_display = data.street.strip()
+    if data.house_number:
+        addr_display += f" {data.house_number.strip()}"
+    region_label = REGIONS[data.region]["label"]
+
+    send_email(
+        to=data.email,
+        subject="✅ Prijava uspešna — Bez Struje Obaveštenja",
+        html_body=f"""
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 520px; margin: 0 auto; padding: 24px;">
+            <div style="background: #1a1a2e; color: #fff; padding: 24px 28px; border-radius: 12px 12px 0 0;">
+                <h1 style="margin: 0; font-size: 20px;">⚡ Bez Struje Obaveštenja</h1>
+            </div>
+            <div style="background: #fff; border: 1px solid #e5e7eb; border-top: none; padding: 28px; border-radius: 0 0 12px 12px;">
+                <p style="font-size: 16px; color: #111; margin-top: 0;">
+                    Hvala na prijavi! Uspešno ste se registrovali za obaveštenja o isključenju struje.
+                </p>
+                <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 16px; border-radius: 6px; margin: 20px 0;">
+                    <p style="margin: 0 0 8px 0; font-size: 15px;"><strong>📍 Adresa:</strong> {addr_display}</p>
+                    <p style="margin: 0; font-size: 15px;"><strong>🏙️ Region:</strong> {region_label}</p>
+                </div>
+                <p style="font-size: 14px; color: #374151;">
+                    Kada Elektrodistribucija Srbije objavi planirano isključenje struje za vašu adresu,
+                    poslaćemo vam email <strong>2 dana pre</strong> i <strong>1 dan pre</strong> isključenja.
+                </p>
+                <p style="font-size: 14px; color: #374151;">
+                    Proveravamo sajt EDS-a svakih sat vremena, tako da ćete uvek biti obavešteni na vreme.
+                </p>
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 0;">
+                    <a href="{BASE_URL}/odjava?sub_id={sub['id']}&email={data.email}" style="color: #9ca3af;">Odjavi se od obaveštenja</a>
+                </p>
+            </div>
+        </div>
+        """,
+    )
+
     return SubscriptionOut(
         id=sub["id"], street=sub["street"], house_number=sub["house_number"],
-        municipality=sub["municipality"], active=bool(sub["active"]),
+        municipality=sub["municipality"], region=sub["region"], active=bool(sub["active"]),
     )
 
 
@@ -669,7 +731,7 @@ def list_subscriptions(email: str):
     return [
         SubscriptionOut(
             id=s["id"], street=s["street"], house_number=s["house_number"],
-            municipality=s["municipality"], active=bool(s["active"]),
+            municipality=s["municipality"], region=s["region"], active=bool(s["active"]),
         ) for s in subs
     ]
 
@@ -704,11 +766,15 @@ def unsubscribe_page(sub_id: int, email: str):
 
 @app.get("/api/outages", response_model=list[OutageOut])
 def list_outages(
+    region: Optional[str] = None,
     municipality: Optional[str] = None,
     date_from: Optional[str] = Query(None, description="YYYY-MM-DD"),
 ):
-    query = "SELECT * FROM outages WHERE region = 'beograd'"
+    query = "SELECT * FROM outages WHERE 1=1"
     params = []
+    if region:
+        query += " AND region = ?"
+        params.append(region)
     if municipality:
         query += " AND municipality LIKE ?"
         params.append(f"%{municipality}%")
@@ -729,12 +795,12 @@ def list_outages(
 
 
 @app.get("/api/check")
-def check_address(street: str, house_number: Optional[str] = None):
+def check_address(street: str, house_number: Optional[str] = None, region: str = "beograd"):
     """Instant check: does this address have any upcoming outages?"""
     today = date.today().isoformat()
     with get_db() as db:
         outages = db.execute(
-            "SELECT * FROM outages WHERE region='beograd' AND outage_date >= ?", (today,)
+            "SELECT * FROM outages WHERE region=? AND outage_date >= ?", (region, today)
         ).fetchall()
 
     matches = []
@@ -745,7 +811,13 @@ def check_address(street: str, house_number: Optional[str] = None):
                 time_range=o["time_range"], streets_raw=o["streets_raw"],
                 outage_date=o["outage_date"],
             ))
-    return {"street": street, "house_number": house_number, "outages_found": len(matches), "outages": matches}
+    return {"street": street, "house_number": house_number, "region": region, "outages_found": len(matches), "outages": matches}
+
+
+@app.get("/api/regions")
+def list_regions():
+    """List available regions."""
+    return {k: v["label"] for k, v in REGIONS.items()}
 
 
 @app.post("/admin/scrape")
