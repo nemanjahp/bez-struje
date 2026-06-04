@@ -30,6 +30,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 # ---------------------------------------------------------------------------
 
 DATABASE = os.getenv("DATABASE_PATH", "bez_struje.db")
+# Ensure the database directory exists (e.g. a mounted Railway volume like /data).
+Path(DATABASE).expanduser().parent.mkdir(parents=True, exist_ok=True)
 CHECK_INTERVAL_MINUTES = int(os.getenv("CHECK_INTERVAL", "60"))
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
